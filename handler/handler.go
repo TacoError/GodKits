@@ -49,13 +49,15 @@ func (h *Handler) HandleDeath(damage.Source) {
 
 func (h *Handler) HandleAttackEntity(ctx *event.Context, e world.Entity, _, _ *float64, _ *bool) {
 	if p, ok := e.(*player.Player); ok {
-		if !p.Handler().(*Handler).CanPvP.Load() {
+		hitHandler := p.Handler().(*Handler)
+
+		if !hitHandler.CanPvP.Load() {
 			h.Player.Message("§cYou cannot hit this player, as they do not have a kit equipped")
 			ctx.Cancel()
 			return
 		}
 
-		p.Handler().(*Handler).LastHitBy.Store(h.Player)
+		hitHandler.LastHitBy.Store(h.Player)
 		held, _ := h.Player.HeldItems()
 		for _, enchantment := range held.Enchantments() {
 			id, _ := item.EnchantmentID(enchantment.Type())
