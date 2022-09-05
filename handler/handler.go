@@ -15,6 +15,7 @@ import (
 type Handler struct {
 	player.NopHandler
 	Player *player.Player
+
 	CanPvP bool
 }
 
