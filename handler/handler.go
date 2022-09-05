@@ -22,9 +22,6 @@ func (h *Handler) HandleItemDrop(ctx *event.Context, _ *entity.Item) {
 	ctx.Cancel()
 }
 
-func (h *Handler) HandleQuit() {
-}
-
 func (h *Handler) HandleFoodLoss(ctx *event.Context, _ int, _ int) {
 	ctx.Cancel()
 }
