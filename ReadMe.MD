@@ -6,6 +6,13 @@ This project was made simply for practice, take a look around if you would like!
 
 Thanks!
 
+# How to run?
+
+- git clone github.com/TacoError/GodKits
+- cd GodKits
+- go run main.go
+- Thats all!
+
 # Resources
 
  - https://freshman.tech/snippets/go/roman-numerals/ (for roman numerals in enchants)
