@@ -14,9 +14,16 @@ type GKit struct {
 
 func (g GKit) Run(src cmd.Source, _ *cmd.Output) {
 	sender := src.(*player.Player)
+	if h, ok := sender.Handler().(*handler.Handler); ok {
+		if h.CanPvP.Load() {
+			sender.Message("§cYou cannot do this whilst already in a kit")
+			return
+		}
+	}
+
 	if kits.KitExists(g.Type) {
 		session := sender.Handler().(*handler.Handler)
-		session.CanPvP = true
+		session.CanPvP.Store(true)
 		kits.GiveKit(sender, g.Type)
 		return
 	}

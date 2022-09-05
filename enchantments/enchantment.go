@@ -8,9 +8,5 @@ import (
 type Enchantment interface {
 	item.EnchantmentType
 	GetChance() (int, int)
-}
-
-type SwordEnchantment interface {
-	Enchantment
 	Trigger(player *player.Player, hit *player.Player)
 }

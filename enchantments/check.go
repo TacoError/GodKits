@@ -1,11 +1,15 @@
 package enchantments
 
 import (
+	"fmt"
 	"github.com/df-mc/dragonfly/server/player"
+	"math/rand"
 )
 
-func RunEnchantmentCheckOnHit(enchantment Enchantment, player *player.Player, hit *player.Player) {
-	if enchant, ok := enchantment.(SwordEnchantment); ok {
-		enchant.Trigger(player, hit)
+func RunEnchantmentCheckOnHit(enchantment Enchantment, level int, player *player.Player, hit *player.Player) {
+	multiplier, max := enchantment.GetChance()
+	if (level * multiplier) < rand.Intn(max) {
+		player.SendJukeboxPopup(fmt.Sprintf("§e%v §fhas triggered!", enchantment.Name()))
+		go enchantment.Trigger(player, hit)
 	}
 }

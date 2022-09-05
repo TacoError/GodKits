@@ -3,7 +3,9 @@ package handler
 import (
 	"GodKits/enchantments"
 	"fmt"
+	"github.com/df-mc/atomic"
 	"github.com/df-mc/dragonfly/server/entity"
+	"github.com/df-mc/dragonfly/server/entity/damage"
 	"github.com/df-mc/dragonfly/server/event"
 	"github.com/df-mc/dragonfly/server/item"
 	"github.com/df-mc/dragonfly/server/player"
@@ -16,7 +18,8 @@ type Handler struct {
 	player.NopHandler
 	Player *player.Player
 
-	CanPvP bool
+	CanPvP    atomic.Bool
+	LastHitBy atomic.Value[*player.Player]
 }
 
 func (h *Handler) HandleItemDrop(ctx *event.Context, _ *entity.Item) {
@@ -35,17 +38,34 @@ func (h *Handler) HandleItemPickup(ctx *event.Context, _ item.Stack) {
 	ctx.Cancel()
 }
 
+func (h *Handler) HandleDeath(damage.Source) {
+	lastHitBy := h.LastHitBy.Load()
+	if lastHitBy == nil {
+		_, _ = chat.Global.WriteString(fmt.Sprintf("§e%v §fhas died.", h.Player.Name()))
+		return
+	}
+	_, _ = chat.Global.WriteString(fmt.Sprintf("§e%v §fhas been killed by §e%v§f!", h.Player.Name(), lastHitBy.Name()))
+}
+
 func (h *Handler) HandleAttackEntity(ctx *event.Context, e world.Entity, _, _ *float64, _ *bool) {
 	if p, ok := e.(*player.Player); ok {
-		if !h.CanPvP {
+		if !p.Handler().(*Handler).CanPvP.Load() {
 			h.Player.Message("§cYou cannot hit this player, as they do not have a kit equipped")
 			ctx.Cancel()
 			return
 		}
 
+		p.Handler().(*Handler).LastHitBy.Store(h.Player)
 		held, _ := h.Player.HeldItems()
 		for _, enchantment := range held.Enchantments() {
-			enchantments.RunEnchantmentCheckOnHit(enchantment, h.Player, p)
+			id, _ := item.EnchantmentID(enchantment.Type())
+			if id < 50 {
+				continue
+			}
+			if _, ok := enchantment.Type().(enchantments.Enchantment); !ok {
+				continue
+			}
+			enchantments.RunEnchantmentCheckOnHit(enchantment.Type().(enchantments.Enchantment), enchantment.Level(), h.Player, p)
 		}
 		return
 	}
@@ -58,6 +78,6 @@ func (h *Handler) HandleChat(ctx *event.Context, message *string) {
 }
 
 func (h *Handler) HandleRespawn(*mgl64.Vec3, **world.World) {
-	h.CanPvP = false
+	h.CanPvP.Store(false)
 	h.Player.Message("§aYou have respawned, use the command §e/gkit §ato re-equip another GKit!")
 }

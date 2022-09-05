@@ -1,13 +1,15 @@
 package enchantments
 
 import (
+	"github.com/df-mc/dragonfly/server/entity/damage"
 	"github.com/df-mc/dragonfly/server/item"
 	"github.com/df-mc/dragonfly/server/player"
 	"github.com/df-mc/dragonfly/server/world"
+	"time"
 )
 
 type Freeze struct {
-	SwordEnchantment
+	Enchantment
 }
 
 func (Freeze) Name() string {
@@ -15,20 +17,24 @@ func (Freeze) Name() string {
 }
 
 func (Freeze) GetChance() (int, int) {
-	return 5, 100
+	return 5, 50
 }
 
 func (Freeze) MaxLevel() int {
 	return 5
 }
 
-func (Freeze) Cost(level int) (int, int) {
-	min := 1 + (level-1)*11
-	return min, min + 20
+func (Freeze) Cost(int) (int, int) {
+	return 1, 1
 }
 
-func (Freeze) Trigger(player *player.Player, hit *player.Player) {
-	// whatever freeze enchantment does idk
+func (Freeze) Trigger(_ *player.Player, hit *player.Player) {
+	hit.SetImmobile()
+	for i := 0; i <= 5; i++ {
+		hit.Hurt(3, damage.SourceLightning{})
+		time.Sleep(250 * time.Millisecond)
+	}
+	hit.SetMobile()
 }
 
 func (Freeze) Rarity() item.EnchantmentRarity {

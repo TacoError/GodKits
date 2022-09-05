@@ -1,16 +1,36 @@
 package kits
 
-import "github.com/df-mc/dragonfly/server/player"
+import (
+	"github.com/df-mc/dragonfly/server/item"
+	"github.com/df-mc/dragonfly/server/player"
+)
 
 type Kit struct {
-	GiveKit func(player *player.Player)
+	Name  string
+	Armor []item.Stack
+	Sword item.Stack
+}
+
+func (k Kit) GiveKit(player *player.Player) {
+	armor := *player.Armour()
+	armor.Clear()
+	inventory := *player.Inventory()
+	inventory.Clear()
+	armor.SetHelmet(k.Armor[0])
+	armor.SetChestplate(k.Armor[1])
+	armor.SetLeggings(k.Armor[2])
+	armor.SetBoots(k.Armor[3])
+
+	_ = inventory.SetItem(1, item.NewStack(item.GoldenApple{}, 32))
+	_ = inventory.SetItem(0, k.Sword)
+
+	player.Messagef("§fYou have equipped the kit§7: §e%v", k.Name)
 }
 
 var kits = make(map[string]Kit)
 
 func Load() {
-	kits["Regular"] = Kit{GiveKit: GiveRegular}
-	kits["SpeedDemon"] = Kit{GiveKit: GiveSpeedDemon}
+	kits["Regular"] = regular
 }
 
 func KitExists(name string) bool {

@@ -9,6 +9,7 @@ import (
 	"github.com/df-mc/dragonfly/server/cmd"
 	"github.com/df-mc/dragonfly/server/player"
 	"github.com/df-mc/dragonfly/server/player/chat"
+	"github.com/df-mc/dragonfly/server/world"
 	"github.com/sirupsen/logrus"
 )
 
@@ -33,19 +34,17 @@ func main() {
 
 	kits.Load()
 	enchantments.Register()
-
 	cmd.Register(cmd.New("gkit", "Get a kit (/gkit type)", []string{"gkits"}, commands.GKit{}))
 
 	for srv.Accept(func(player *player.Player) {
 		player.Handle(&handler.Handler{
 			Player: player,
-			CanPvP: false,
 		})
 		player.Inventory().Clear()
 		player.Armour().Clear()
-
+		player.SetGameMode(world.GameModeSurvival)
+		player.SetMobile()
 		player.Teleport(srv.World().Spawn().Vec3())
-
 		player.Message("§aYou have spawned, use the command §e/gkit §ato equip a GKit!")
 	}) {
 	}
