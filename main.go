@@ -5,7 +5,6 @@ import (
 	"GodKits/enchantments"
 	"GodKits/handler"
 	"GodKits/kits"
-	"GodKits/utils"
 	"github.com/df-mc/dragonfly/server"
 	"github.com/df-mc/dragonfly/server/cmd"
 	"github.com/df-mc/dragonfly/server/player"
@@ -38,9 +37,9 @@ func main() {
 	cmd.Register(cmd.New("gkit", "Get a kit (/gkit type)", []string{"gkits"}, commands.GKit{}))
 
 	for srv.Accept(func(player *player.Player) {
-		utils.CanPvP[player.Name()] = false
 		player.Handle(&handler.Handler{
 			Player: player,
+			CanPvP: false,
 		})
 		player.Inventory().Clear()
 		player.Armour().Clear()
