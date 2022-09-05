@@ -17,7 +17,7 @@ func (Freeze) Name() string {
 }
 
 func (Freeze) GetChance() (int, int) {
-	return 5, 50
+	return 5, 250
 }
 
 func (Freeze) MaxLevel() int {
@@ -29,12 +29,22 @@ func (Freeze) Cost(int) (int, int) {
 }
 
 func (Freeze) Trigger(_ *player.Player, hit *player.Player) {
-	hit.SetImmobile()
-	for i := 0; i <= 5; i++ {
-		hit.Hurt(3, damage.SourceLightning{})
-		time.Sleep(250 * time.Millisecond)
-	}
-	hit.SetMobile()
+	go func() {
+		hit.SetImmobile()
+		times := 0
+		ticker := time.NewTicker(time.Millisecond * 250)
+		defer func() {
+			ticker.Stop()
+			hit.SetMobile()
+		}()
+		for range ticker.C {
+			if times > 5 {
+				return
+			}
+			hit.Hurt(3, damage.SourceLightning{})
+			times++
+		}
+	}()
 }
 
 func (Freeze) Rarity() item.EnchantmentRarity {

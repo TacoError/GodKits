@@ -12,9 +12,9 @@ type Kit struct {
 }
 
 func (k Kit) GiveKit(player *player.Player) {
-	armor := *player.Armour()
+	armor := player.Armour()
 	armor.Clear()
-	inventory := *player.Inventory()
+	inventory := player.Inventory()
 	inventory.Clear()
 	armor.SetHelmet(k.Armor[0])
 	armor.SetChestplate(k.Armor[1])

@@ -5,6 +5,7 @@ import (
 	"GodKits/enchantments"
 	"GodKits/handler"
 	"GodKits/kits"
+	"GodKits/utils"
 	"github.com/df-mc/dragonfly/server"
 	"github.com/df-mc/dragonfly/server/cmd"
 	"github.com/df-mc/dragonfly/server/player"
@@ -35,6 +36,7 @@ func main() {
 	kits.Load()
 	enchantments.Register()
 	cmd.Register(cmd.New("gkit", "Get a kit (/gkit type)", []string{"gkits"}, commands.GKit{}))
+	go utils.StartClearEntityLoop(srv)
 
 	for srv.Accept(func(player *player.Player) {
 		player.Handle(&handler.Handler{
